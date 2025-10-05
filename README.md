@@ -1,6 +1,18 @@
 # capacitor-webauthn
 
-WebAuthn authentication plugin for capacitor on ios and android
+A Capacitor plugin that enables WebAuthn (passkeys) authentication on iOS and Android using native platform APIs.
+
+## Features
+
+- ✅ **Native passkey support** - Uses ASAuthorization (iOS) and Credential Manager (Android)
+- 🔐 **Secure biometric authentication** - Face ID, Touch ID, fingerprint, etc.
+- 🌐 **Web fallback** - Standard WebAuthn API on web platform
+- 📱 **Cross-platform** - Works on iOS 16+, Android 9+, and modern browsers
+- 🎯 **Type-safe** - Full TypeScript support with detailed interfaces
+
+## What are Passkeys?
+
+Passkeys are a modern, phishing-resistant replacement for passwords based on the WebAuthn standard. They use public-key cryptography and are stored securely on the device, synced via iCloud Keychain (iOS) or Google Password Manager (Android).
 
 ## Install
 
@@ -8,6 +20,111 @@ WebAuthn authentication plugin for capacitor on ios and android
 npm install capacitor-webauthn
 npx cap sync
 ```
+
+## Platform Requirements
+
+### iOS
+- iOS 16.0 or later
+- Xcode 14 or later
+- No additional configuration needed
+
+### Android
+- Android 9 (API 28) or later
+- Google Play Services
+- Credential Manager dependency (included automatically)
+
+## Usage
+
+### Import the plugin
+
+```typescript
+import { WebAuthn } from 'capacitor-webauthn';
+```
+
+### Check availability
+
+```typescript
+const { available } = await WebAuthn.isAvailable();
+if (!available) {
+  console.log('WebAuthn not supported on this device');
+}
+```
+
+### Registration (Creating a passkey)
+
+```typescript
+try {
+  const credential = await WebAuthn.startRegistration({
+    challenge: 'base64url-encoded-challenge-from-server',
+    rp: {
+      name: 'My App',
+      id: 'example.com'
+    },
+    user: {
+      id: 'base64url-encoded-user-id',
+      name: 'user@example.com',
+      displayName: 'John Doe'
+    },
+    pubKeyCredParams: [
+      { type: 'public-key', alg: -7 },  // ES256
+      { type: 'public-key', alg: -257 } // RS256
+    ],
+    authenticatorSelection: {
+      authenticatorAttachment: 'platform',
+      residentKey: 'required',
+      userVerification: 'required'
+    },
+    timeout: 60000,
+    attestation: 'none'
+  });
+
+  // Send credential to your server for verification
+  console.log('Credential created:', credential);
+} catch (error) {
+  console.error('Registration failed:', error);
+}
+```
+
+### Authentication (Signing in with a passkey)
+
+```typescript
+try {
+  const credential = await WebAuthn.startAuthentication({
+    challenge: 'base64url-encoded-challenge-from-server',
+    rpId: 'example.com',
+    timeout: 60000,
+    userVerification: 'required'
+  });
+
+  // Send credential to your server for verification
+  console.log('Authentication successful:', credential);
+} catch (error) {
+  console.error('Authentication failed:', error);
+}
+```
+
+## Server Integration
+
+This plugin handles the client-side WebAuthn flow. You'll need a server that:
+
+1. Generates challenges for registration and authentication
+2. Verifies the credential responses
+3. Stores public keys associated with user accounts
+
+**Recommended libraries:**
+- Node.js: [@simplewebauthn/server](https://github.com/MasterKale/SimpleWebAuthn)
+- Python: [py_webauthn](https://github.com/duo-labs/py_webauthn)
+- Go: [webauthn](https://github.com/go-webauthn/webauthn)
+- Java: [webauthn4j](https://github.com/webauthn4j/webauthn4j)
+
+## Error Handling
+
+Common errors you might encounter:
+
+- **"WebAuthn not available"** - Device doesn't support passkeys or is too old
+- **"User cancelled"** - User dismissed the authentication prompt
+- **"No passkey providers available"** - Android device doesn't have Google Play Services
+- **"Invalid challenge"** - Challenge format is incorrect (must be base64url)
 
 ## API
 
@@ -164,3 +281,34 @@ Start authentication flow
 | **`userVerification`** | <code>'discouraged' \| 'preferred' \| 'required'</code> |
 
 </docgen-api>
+
+## Security Considerations
+
+- Always validate credentials on your server - never trust client responses alone
+- Use challenges that are cryptographically random and single-use
+- Implement rate limiting to prevent brute force attacks
+- Store only public keys on your server (private keys never leave the device)
+- Use HTTPS for all WebAuthn operations (required by the standard)
+
+## Browser and Platform Support
+
+| Platform | Minimum Version | Notes |
+|----------|----------------|-------|
+| iOS | 16.0 | Uses ASAuthorization framework |
+| Android | 9.0 (API 28) | Requires Google Play Services |
+| Web | Modern browsers | Falls back to standard WebAuthn API |
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT © [Øyvind Berget](https://github.com/gledlyOeyvind)
+
+## Links
+
+- [GitHub Repository](https://github.com/gledlyOeyvind/capacitor-webauthn)
+- [Report Issues](https://github.com/gledlyOeyvind/capacitor-webauthn/issues)
+- [WebAuthn Guide](https://webauthn.guide/)
+- [Passkeys.dev](https://passkeys.dev/)
