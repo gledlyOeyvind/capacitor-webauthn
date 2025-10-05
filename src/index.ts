@@ -1,10 +1,10 @@
 import { registerPlugin } from '@capacitor/core';
 
-import type { WebAuthnPluginPlugin } from './definitions';
+import type { WebAuthnPlugin } from './definitions';
 
-const WebAuthnPlugin = registerPlugin<WebAuthnPluginPlugin>('WebAuthnPlugin', {
-  web: () => import('./web').then((m) => new m.WebAuthnPluginWeb()),
+const WebAuthn = registerPlugin<WebAuthnPlugin>('WebAuthn', {
+  web: () => import('./web').then((m) => new m.WebAuthnWeb()),
 });
 
 export * from './definitions';
-export { WebAuthnPlugin };
+export { WebAuthn };
