@@ -172,7 +172,13 @@ extension WebAuthn: ASAuthorizationControllerDelegate {
 @available(iOS 15.0, *)
 extension WebAuthn: ASAuthorizationControllerPresentationContextProviding {
     public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        return ASPresentationAnchor()
+        // Get the key window from the app
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = scene.windows.first(where: { $0.isKeyWindow }) {
+            return window
+        }
+        // Fallback for older iOS versions
+        return UIApplication.shared.windows.first { $0.isKeyWindow } ?? ASPresentationAnchor()
     }
 }
 
