@@ -23,10 +23,7 @@ import AuthenticationServices
     }
 
     @objc public func isAvailable() -> Bool {
-        if #available(iOS 15.0, *) {
-            return true
-        }
-        return false
+        return true
     }
 
     public func startRegistration(
@@ -73,7 +70,7 @@ import AuthenticationServices
             authController.presentationContextProvider = self
             self.authorizationController = authController
 
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [authController] in
                 authController.performRequests()
             }
         }
@@ -125,7 +122,7 @@ import AuthenticationServices
             authController.presentationContextProvider = self
             self.authorizationController = authController
 
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [authController] in
                 authController.performRequests()
             }
         }
@@ -172,13 +169,13 @@ extension WebAuthn: ASAuthorizationControllerDelegate {
 @available(iOS 15.0, *)
 extension WebAuthn: ASAuthorizationControllerPresentationContextProviding {
     public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        // Get the key window from the app
+        // Get the key window from the active window scene
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = scene.windows.first(where: { $0.isKeyWindow }) {
             return window
         }
-        // Fallback for older iOS versions
-        return UIApplication.shared.windows.first { $0.isKeyWindow } ?? ASPresentationAnchor()
+        // Fallback
+        return ASPresentationAnchor()
     }
 }
 

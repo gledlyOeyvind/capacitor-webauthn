@@ -1,6 +1,6 @@
 {
   "name": "capacitor-webauthn",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "WebAuthn authentication plugin for capacitor on ios and android",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
